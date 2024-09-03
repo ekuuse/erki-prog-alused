@@ -10,7 +10,7 @@ let pealkiri = "";
 let hasfile = false;
 
 const CheckSpam = () => {
-    if (filesize > 1 || pealkiri == "" || hasfile === true) {
+    if (pealkiri == "" || hasfile === false && filesize > 1) {
         console.log("spam detected")
     }
     else {
