@@ -8,18 +8,17 @@
     <div style="display: flex; justify-content: center;">
         <div style="width: 50%;">
             <div class="card">
-            <div class="card-content black-text">
+            <form class="card-content black-text" method="post" action="/">
                 <span class="card-title">To-Do list!</span>
                 <div class="input-field s6">
-                    <input placeholder="Whatever you want to do..." id="task_name" type="text" class="validate">
-                    <label for="first_name">Task</label>
+                    <input placeholder="Whatever you want to do..." id="task" type="text" name="task">
+                    <label for="task">Insert Task</label>
                 </div>
-                <a class="waves-effect waves-light btn">add task</a>
+                <input class="btn" type="submit" value="ADD TASK"> 
                
-            </div>
+            </form>
 
             <div class="card-action">
-                <% console.log(tasks) %>
                 <ul class="collection">
                 <% tasks.forEach((task) => { %>
                     <li class="collection-item"><%= task%></li>
