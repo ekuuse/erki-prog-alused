@@ -57,8 +57,8 @@ app.get('/delete-task/:taskId', (req, res) => {
     })
 })
 
-app.get('/other', (req, res) => {
-    res.render('other')
+app.get('/edit/:taskId/:task', (req, res) => {
+    res.render('edit', {taskId: parseInt(req.params.taskId),task: req.params.task, error: null})
 })
 
 function isValidString(input) {
@@ -101,6 +101,31 @@ app.post('/', (req, res) => {
             }
             res.redirect('/')
         })    
+    }
+})
+
+app.post('/edit', (req, res) => {
+    let error = null
+    if (!isValidString(req.body.task)) {
+        error = "Refused empty string or value that was not a string. Please enter a valid value."
+        readFile('./tasks.json')
+        .then(tasks => {
+            res.render('edit', { taskId: req.body.id, error: error })
+        });
+    } else {
+        readFile('./tasks.json')
+        .then(tasks => {
+            tasks.forEach(task => {
+                if (task.id === parseInt(req.body.id)) {
+                    task.task = req.body.task; // Update task
+                }
+            });
+            const data = JSON.stringify(tasks, null, 2)
+            writeFile('./tasks.json', data)
+            .then(() => {
+                res.redirect('/');
+            })
+        })
     }
 })
 

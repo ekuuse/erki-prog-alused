@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+
+<head>
+    <title>ok</title>
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+    <link href="https://fonts.googleapis.com/icon?Family=Material+Icons" rel="stylesheet">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+</head>
+
+<body>
+    <div style="display: flex; justify-content: center;">
+        <div style="width: 50%;">
+            <div class="card">
+            <form class="card-content black-text" method="post" action="/edit">
+                <% if (error !== null) {%>
+                <div class="row teal lighten-4">
+                    <div class="col s12">
+                        <p class="center-align"><%= error %></p>
+                    </div>
+                </div>
+                <% } %>
+                <span class="card-title">Editing Task</span>
+                <div class="input-field s6">
+                    <input placeholder="Whatever else you want to do..." id="task" type="text" name="task" value="<%= task %>">
+                    <label for="task">Editing Task</label>
+                </div>
+                <input type="hidden" name="id" value="<%= taskId %>">
+                <input class="btn" type="submit" value="UPDATE TASK"> 
+                <a class="btn" href="/">CANCEL</a>
+            </form>
+            </div>
+        </div>
+    </div>
+</body>
