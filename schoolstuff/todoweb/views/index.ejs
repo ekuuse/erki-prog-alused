@@ -9,6 +9,13 @@
         <div style="width: 50%;">
             <div class="card">
             <form class="card-content black-text" method="post" action="/">
+                <% if (error !== null) {%>
+                <div class="row teal lighten-4">
+                    <div class="col s12">
+                        <p class="center-align"><%= error %></p>
+                    </div>
+                </div>
+                <% } %>
                 <span class="card-title">To-Do list!</span>
                 <div class="input-field s6">
                     <input placeholder="Whatever you want to do..." id="task" type="text" name="task">
