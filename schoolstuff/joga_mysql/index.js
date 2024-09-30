@@ -44,7 +44,6 @@ app.get('/author/:id',(req, res) => {
     con.query(query, [req.params.id], (err,result) => {
         if (err) throw err
         articles = result
-        console.log(articles)
         con.query(`SELECT * FROM author WHERE id = ?`, [req.params.id], (err,aresult) => {
             if (err) throw err
             let author = aresult[0]

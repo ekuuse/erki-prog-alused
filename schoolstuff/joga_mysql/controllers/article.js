@@ -6,7 +6,6 @@ const getAllArticles = (req, res) => {
     con.query(query, (err,result) => {
         if (err) throw err
         articles = result
-        console.log(articles)
         res.render('index', {
             title: "Homepage",
             articles: articles
