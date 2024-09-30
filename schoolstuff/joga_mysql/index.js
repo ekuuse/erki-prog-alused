@@ -33,7 +33,36 @@ con.connect(function(err) {
     console.log("connected to joga_mysql db")
 })
 
+// show page
+app.get('/', (req, res) => {
+    let query = "SELECT * FROM article"
+    let articles = []
+    con.query(query, (err,result) => {
+        if (err) throw err
+        articles = result
+        console.log(articles)
+        res.render('index', {
+            articles: articles
+        })
+    })
+    
+})
+
+// show article by this slug
+app.get('/article/:slug', (req, res) => {
+    let query = `SELECT * FROM article WHERE slug="${req.params.slug}"`
+    let article
+    con.query(query, (err,result) => {
+        if (err) throw err
+        article = result
+        console.log(article)
+        res.render('article', {
+            article: article
+        })
+    })
+})
+
 // app starts here
-app.listen(5023, () => {
-    console.log("app: https://localhost:5023")
+app.listen(3000, () => {
+    console.log("app: http://localhost:3000")
 })
