@@ -42,22 +42,44 @@ app.get('/', (req, res) => {
         articles = result
         console.log(articles)
         res.render('index', {
+            title: "Homepage",
             articles: articles
         })
     })
     
 })
 
+app.get('/author/:id', (req, res) => {
+    let query = `SELECT * FROM article WHERE author_id = ?`
+    let articles = []
+    con.query(query, [req.params.id], (err,result) => {
+        if (err) throw err
+        articles = result
+        console.log(articles)
+        con.query(`SELECT * FROM author WHERE id = ?`, [req.params.id], (err,aresult) => {
+            if (err) throw err
+            let author = aresult[0]
+            res.render('index', {
+                title: author.name,
+                articles: articles
+            })
+        })
+    })
+})
+
 // show article by this slug
 app.get('/article/:slug', (req, res) => {
     let query = `SELECT * FROM article WHERE slug="${req.params.slug}"`
-    let article
     con.query(query, (err,result) => {
         if (err) throw err
-        article = result
-        console.log(article)
-        res.render('article', {
-            article: article
+        let article = result
+        con.query(`SELECT * FROM author WHERE id = ?`, [article[0].author_id], (err,aresult) => {
+            if (err) throw err
+            let author = aresult[0]
+            article[0].author = author
+            res.render('article', {
+                article: article
+            })
         })
     })
 })
