@@ -19,8 +19,10 @@ class School {
         }
     }
     addStudentGrade(student, course, grade) {
-        student.addGrade(course, grade)
-        course.addGrade(student, grade)
+        if (student in this.students) {
+            student.addGrade(course, grade)
+            course.addGrade(student, grade)
+        }
     }
     getStudents() {
         return this.students
