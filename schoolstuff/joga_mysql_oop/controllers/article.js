@@ -15,6 +15,11 @@ class articleController {
         const article = await articleModel.findOne(req.params.slug)
         res.status(201).json({article: article})
     }
+
+    async getArticleByAuthor(req, res){
+        const article = await articleModel.findMany(req.params.id)
+        res.status(201).json({article: article})
+    }
 }
 
 //export controller functions
