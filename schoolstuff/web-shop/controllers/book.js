@@ -16,7 +16,7 @@ class bookController {
         // res.status(201).json({ books: cleanBooks });
         res.render('books', { books: cleanBooks });
     }
-    
+
     async getAllbooksAdmin(req, res) {
         const [books] = await db.execute('SELECT * FROM books');
         const cleanBooks = books.map(book => {
@@ -72,7 +72,7 @@ class bookController {
         db.execute(`UPDATE books SET title = '${req.body.title}', imageUrl = '${req.body.imageUrl}', description = '${req.body.description}', price = ${parseFloat(req.body.price)} WHERE id = ${bookId}`)
         res.status(201).json({
             message: `updated book with id ${bookId}`,
-            book: {id: bookId, ...updatedbookFinished}
+            book: {id: bookId, ...updatedbook}
         })
     }
 
@@ -83,6 +83,101 @@ class bookController {
             message: `deleted book with id ${bookId}`
         })
     }
+
+    async getAllbooksCart(req, res) {
+        try {
+            // this has actually no reason to be undefined
+            // const userId = req.session.userId;
+            const userId = 1
+            if (!userId) {
+                return res.status(400).json({ message: 'User ID is required' });
+            }
+    
+            const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
+            
+            if (cart.length === 0) {
+                return res.render('cart', { books: [] });
+            }
+        
+            const cartId = cart[0].cartId;
+        
+            const [books] = await db.execute(`
+                SELECT books.*
+                FROM books
+                JOIN cartItems ON books.id = cartItems.productId
+                WHERE cartItems.cartId = ?
+            `, [cartId]);
+    
+            if (books.length === 0) {
+                return res.render('cart', { books: [] });
+            }
+        
+            const cleanBooks = books.map(book => ({
+                ...book,
+                imageUrl: book.imageUrl ? book.imageUrl.toString() : null
+            }));
+        
+            res.render('cart', { books: cleanBooks });
+    
+        } catch (error) {
+            console.error('Error fetching cart items:', error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }    
+    
+    async addtoCart(req, res) {
+        db.execute(`INSERT INTO cart SET productId = '${req.params.productId}'`)
+        .then(([result]) => {
+            const bookId = result.insertId;
+            res.status(201).json({
+                message: `created book with id ${bookId}`
+            })
+        })
+        .catch((err) => {
+            console.error("error inserting book: ", err)
+          });
+    }
+    async addItemToCart(req, res) {
+        const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [req.body.userId]);
+    
+        let cartId;
+    
+        if (cart.length === 0) {
+            const [newCart] = await db.execute(`INSERT INTO cart (userId) VALUES (?)`, [req.body.userId]);
+            cartId = newCart.insertId;
+        } else {
+            cartId = cart[0].cartId;
+        }
+    
+        await db.execute(
+            `INSERT INTO cartItems (cartId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
+            [cartId, req.body.productId, 1, req.body.price]
+        );
+    
+        console.log('Item added to cart successfully!');
+        res.status(201).json({
+            message: `added to cart`
+        })
+    }
+    async removefromCart(req, res) {
+        const userId = req.body.userId;
+        const productId = req.params.productId;
+    
+        const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
+    
+        if (cart.length === 0) {
+            return res.status(404).json({ message: 'Cart not found for this user' });
+        }
+    
+        const cartId = cart[0].cartId;
+    
+        await db.execute(`DELETE FROM cartItems WHERE cartId = ? AND productId = ?`, [cartId, productId]);
+    
+        res.status(200).json({
+            message: `Removed product with id ${productId} from cart`
+        });
+    }
+    
 }
 
 //export controller functions

@@ -8,6 +8,7 @@ app.set('view engine', 'ejs')
 app.set('views', 'views')
 
 app.use(bodyParser.urlencoded({extended: true}))
+app.use(express.json());
 
 app.use(express.static(path.join(__dirname, 'public')))
 
@@ -20,12 +21,14 @@ db.execute('SHOW DATABASES')
 
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
+const cartRoutes = require('./routes/cart')
 
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
+app.use('/cart', cartRoutes)
 
 app.use((req, res, next) => {
-    res.status(404).send('<b>Page not found, what are you even trying to find?</b>')
+    res.status(404).render('notfound')
     console.log('stupid tried finding no page')
 })
 

@@ -88,19 +88,20 @@
             <h3>
                 Price: <%= item.price %>&euro;
             </h3>
-            <a href="#" onclick="createItem('<%= item.id %>', '<%= item.price %>', 1)">Add to cart</a>
+            <a href="/cart">Buy</a>
+            <a href="#" onclick="deleteItem('<%= item.id %>', '<%= item.price %>', 1)">Remove from cart</a>
         </div>
         <% }); %>
     </div>
     <script>
-        function createItem(id, price, userid) {
+        function deleteItem(id, price, userid) {
             const data = {
                 productId: id,
                 price: parseFloat(price),
                 userId: userid
             };
-          fetch(`/cart/addcart`, {
-            method: 'PUT',
+          fetch(`/cart/removecart`, {
+            method: 'DELETE',
             headers: {
             'Content-Type': 'application/json'
             },
@@ -108,14 +109,14 @@
           })
           .then(response => {
             if (response.ok) {
-              alert('Item added to cart successfully');
+              alert('Item deleted successfully');
               location.reload();
             } else {
-              alert('Failed to add item to cart');
+              alert('Failed to delete the item');
             }
           })
           .catch(error => console.error('Error:', error));
         }
-     </script>
+    </script>
 </body>
 </html>

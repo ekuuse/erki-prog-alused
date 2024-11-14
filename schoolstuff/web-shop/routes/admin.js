@@ -15,5 +15,8 @@ router.get('/', (req,res,next) =>{
 router.get('/editproduct/:id', (req,res,next) =>{
     bookController.editbookAdmin(req,res)
 })
+router.get('/createproduct', (req,res,next) =>{
+    res.render('admincreate')
+})
 
 module.exports = router
