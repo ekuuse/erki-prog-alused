@@ -86,9 +86,7 @@ class bookController {
 
     async getAllbooksCart(req, res) {
         try {
-            // this has actually no reason to be undefined
-            // const userId = req.session.userId;
-            const userId = 1
+            const userId = 1;
             if (!userId) {
                 return res.status(400).json({ message: 'User ID is required' });
             }
@@ -98,11 +96,11 @@ class bookController {
             if (cart.length === 0) {
                 return res.render('cart', { books: [] });
             }
-        
+    
             const cartId = cart[0].cartId;
-        
+    
             const [books] = await db.execute(`
-                SELECT books.*
+                SELECT books.*, cartItems.quantity
                 FROM books
                 JOIN cartItems ON books.id = cartItems.productId
                 WHERE cartItems.cartId = ?
@@ -111,32 +109,21 @@ class bookController {
             if (books.length === 0) {
                 return res.render('cart', { books: [] });
             }
-        
+    
             const cleanBooks = books.map(book => ({
                 ...book,
-                imageUrl: book.imageUrl ? book.imageUrl.toString() : null
+                imageUrl: book.imageUrl ? book.imageUrl.toString() : null,
+                quantity: book.quantity
             }));
-        
+    
             res.render('cart', { books: cleanBooks });
     
         } catch (error) {
             console.error('Error fetching cart items:', error);
             res.status(500).json({ message: 'Internal Server Error' });
         }
-    }    
-    
-    async addtoCart(req, res) {
-        db.execute(`INSERT INTO cart SET productId = '${req.params.productId}'`)
-        .then(([result]) => {
-            const bookId = result.insertId;
-            res.status(201).json({
-                message: `created book with id ${bookId}`
-            })
-        })
-        .catch((err) => {
-            console.error("error inserting book: ", err)
-          });
     }
+    
     async addItemToCart(req, res) {
         const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [req.body.userId]);
     
@@ -149,18 +136,32 @@ class bookController {
             cartId = cart[0].cartId;
         }
     
-        await db.execute(
-            `INSERT INTO cartItems (cartId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
-            [cartId, req.body.productId, 1, req.body.price]
+        const [existingItem] = await db.execute(
+            `SELECT quantity FROM cartItems WHERE cartId = ? AND productId = ?`,
+            [cartId, req.body.productId]
         );
+    
+        if (existingItem.length > 0) {
+            const newQuantity = existingItem[0].quantity + 1;
+            await db.execute(
+                `UPDATE cartItems SET quantity = ? WHERE cartId = ? AND productId = ?`,
+                [newQuantity, cartId, req.body.productId]
+            );
+        } else {
+            await db.execute(
+                `INSERT INTO cartItems (cartId, productId, quantity, price) VALUES (?, ?, ?, ?)`,
+                [cartId, req.body.productId, 1, req.body.price]
+            );
+        }
     
         console.log('Item added to cart successfully!');
         res.status(201).json({
-            message: `added to cart`
-        })
+            message: `Item added to cart`
+        });
     }
+    
     async removefromCart(req, res) {
-        const userId = req.body.userId;
+        const userId = req.params.userId;
         const productId = req.params.productId;
     
         const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);

@@ -86,26 +86,20 @@
                 <%= item.description %>
             </p>
             <h3>
+                Quantity: <%= item.quantity %>
+            </h3>
+            <h3>
                 Price: <%= item.price %>&euro;
             </h3>
             <a href="/cart">Buy</a>
-            <a href="#" onclick="deleteItem('<%= item.id %>', '<%= item.price %>', 1)">Remove from cart</a>
+            <a href="#" onclick="deleteItem('<%= item.id %>', 1)">Remove from cart</a>
         </div>
         <% }); %>
     </div>
     <script>
-        function deleteItem(id, price, userid) {
-            const data = {
-                productId: id,
-                price: parseFloat(price),
-                userId: userid
-            };
-          fetch(`/cart/removecart`, {
+        function deleteItem(id, userid) {
+          fetch(`/cart/removecart/${id}/${userid}`, {
             method: 'DELETE',
-            headers: {
-            'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
           })
           .then(response => {
             if (response.ok) {
