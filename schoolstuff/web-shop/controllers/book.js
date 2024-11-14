@@ -178,6 +178,26 @@ class bookController {
             message: `Removed product with id ${productId} from cart`
         });
     }
+
+    async purchasefromCart(req, res) {
+        const userId = req.body.userId;
+        
+        const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
+    
+        if (cart.length === 0) {
+            return res.status(404).json({ message: 'Cart not found for this user' });
+        }
+    
+        const cartId = cart[0].cartId;
+    
+        // Remove all items from the cart
+        await db.execute(`DELETE FROM cartItems WHERE cartId = ?`, [cartId]);
+    
+        res.status(200).json({
+            message: `All items removed from cart for user with ID ${userId}`
+        });
+    }
+    
     
 }
 

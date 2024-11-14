@@ -11,6 +11,10 @@
         background-color: rgb(19, 19, 19);
         font-family:Verdana, Geneva, Tahoma, sans-serif
     }
+    body h1 {
+        text-shadow: 
+        0 0 50px rgba(255, 255, 255, 0.7);
+    }
     #navbar {
         background-color: #000000;
         color: #fff;
@@ -73,8 +77,16 @@
 </style>
 <body>
     <%- include('./navbar') %>
+    <% if (books.length === 0) { %>
+        <div style="color:white;margin-top: 100px; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+            <h1>No items in the shopping cart</h1>
+        </div>
+    <% } else { %>
     <div id="productcont">
-        <% books.map((item) => { %>
+        <% let totalPrice = 0; %> <!-- Initialize totalPrice variable -->
+        <% books.map((item) => { 
+            totalPrice += item.price * item.quantity;  <!-- Add item price * quantity to totalPrice -->
+        %>
         <div id="product">
             <h4>
                 <%= item.title %>
@@ -86,7 +98,7 @@
                 <%= item.description %>
             </p>
             <h3>
-                Quantity: <%= item.quantity %>
+                Quantity: <%= item.quantity %>x
             </h3>
             <h3>
                 Price: <%= item.price %>&euro;
@@ -96,6 +108,12 @@
         </div>
         <% }); %>
     </div>
+    <div id="product" style="position: fixed; right: 20px; bottom: 20px;">
+        <h3>Total Price: <%= totalPrice.toFixed(2) %>&euro;</h3>
+        <a href="#" onclick="purchaseItem(1)">Purchase</a>
+    </div>
+    <% } %>
+
     <script>
         function deleteItem(id, userid) {
           fetch(`/cart/removecart/${id}/${userid}`, {
@@ -107,6 +125,27 @@
               location.reload();
             } else {
               alert('Failed to delete the item');
+            }
+          })
+          .catch(error => console.error('Error:', error));
+        }
+        function purchaseItem(userid) {
+            const data = {
+                userId: userid
+            };
+          fetch(`/cart/purchase`, {
+            method: 'POST',
+            headers: {
+            'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          })
+          .then(response => {
+            if (response.ok) {
+              alert('Item(s) bought successfully');
+              location.reload();
+            } else {
+              alert('Failed to purchase the item(s)');
             }
           })
           .catch(error => console.error('Error:', error));
