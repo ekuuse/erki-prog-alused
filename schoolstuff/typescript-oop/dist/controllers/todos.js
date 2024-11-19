@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateTodo = exports.getTodos = exports.createTodo = void 0;
+exports.deleteTodo = exports.updateTodo = exports.getTodos = exports.createTodo = void 0;
 const todo_1 = require("../models/todo");
 const todos = [];
 const createTodo = (req, res, next) => {
@@ -48,3 +48,20 @@ const updateTodo = (req, res, next) => {
     }
 };
 exports.updateTodo = updateTodo;
+const deleteTodo = (req, res, next) => {
+    try {
+        const todoId = req.params.id;
+        const todoIndex = todos.findIndex(todo => todo.id === todoId);
+        if (todoIndex < 0) {
+            throw new Error('Could not find todo with such id, oh no!!!!!');
+        }
+        todos.splice(todoIndex, 1);
+        res.status(201).json({
+            message: 'Todo is deleted, you will never get it back!'
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+exports.deleteTodo = deleteTodo;
