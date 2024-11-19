@@ -1,4 +1,5 @@
 const db = require('../utils/db')
+const bcrypt = require('bcrypt');
 
 class bookController {
     constructor() {
@@ -86,9 +87,11 @@ class bookController {
 
     async getAllbooksCart(req, res) {
         try {
-            const userId = 1;
+            const userId = req.session.userId;
+            console.log(req.session)
+
             if (!userId) {
-                return res.status(400).json({ message: 'User ID is required' });
+                return res.status(401).json({ message: 'Unauthorized: Please log in' });
             }
     
             const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
@@ -125,12 +128,18 @@ class bookController {
     }
     
     async addItemToCart(req, res) {
-        const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [req.body.userId]);
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'Unauthorized: Please log in' });
+        }
+
+        const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
     
         let cartId;
     
         if (cart.length === 0) {
-            const [newCart] = await db.execute(`INSERT INTO cart (userId) VALUES (?)`, [req.body.userId]);
+            const [newCart] = await db.execute(`INSERT INTO cart (userId) VALUES (?)`, [userId]);
             cartId = newCart.insertId;
         } else {
             cartId = cart[0].cartId;
@@ -161,7 +170,12 @@ class bookController {
     }
     
     async removefromCart(req, res) {
-        const userId = req.params.userId;
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'Unauthorized: Please log in' });
+        }
+
         const productId = req.params.productId;
     
         const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
@@ -180,7 +194,11 @@ class bookController {
     }
 
     async purchasefromCart(req, res) {
-        const userId = req.body.userId;
+        const userId = req.session.userId;
+
+        if (!userId) {
+            return res.status(401).json({ message: 'Unauthorized: Please log in' });
+        }
         
         const [cart] = await db.execute(`SELECT cartId FROM cart WHERE userId = ?`, [userId]);
     
@@ -198,6 +216,61 @@ class bookController {
         });
     }
     
+    async registerUser(req, res) {
+        const { username, email, password } = req.body;
+    
+        if (!username || !email || !password) {
+            return res.status(400).json({ message: 'All fields are required' });
+        }
+    
+        try {
+            const hashedPassword = await bcrypt.hash(password, 10);
+    
+            await db.execute(
+                `INSERT INTO users (username, email, password) VALUES (?, ?, ?)`,
+                [username, email, hashedPassword]
+            );
+    
+            res.status(201).json({ message: 'User registered successfully' });
+        } catch (error) {
+            console.error('Error registering user:', error);
+            if (error.code === 'ER_DUP_ENTRY') {
+                res.status(400).json({ message: 'Email already exists' });
+            } else {
+                res.status(500).json({ message: 'Internal Server Error' });
+            }
+        }
+    }
+
+    async loginUser(req, res) {
+        const { email, password } = req.body;
+    
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+    
+        try {
+            const [users] = await db.execute(`SELECT * FROM users WHERE email = ?`, [email]);
+    
+            if (users.length === 0) {
+                return res.status(401).json({ message: 'Invalid email or password' });
+            }
+    
+            const user = users[0];
+            const match = await bcrypt.compare(password, user.password);
+    
+            if (!match) {
+                return res.status(401).json({ message: 'Invalid email or password' });
+            }
+    
+            req.session.userId = user.id;
+            req.session.save()
+            res.status(200).json({ message: 'Login successful', userId: req.session.userId });
+        } catch (error) {
+            console.error('Error logging in:', error);
+            res.status(500).json({ message: 'Internal Server Error' });
+        }
+    }
     
 }
 

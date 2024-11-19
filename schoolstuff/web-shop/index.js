@@ -1,4 +1,5 @@
 const express = require('express')
+const session = require('express-session');
 const bodyParser = require('body-parser')
 const path = require('path')
 
@@ -12,6 +13,13 @@ app.use(express.json());
 
 app.use(express.static(path.join(__dirname, 'public')))
 
+app.use(session({
+    secret: 'ok', // Replace with a secure, random secret in production
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: false , maxAge: 10000000 } // Set to true if using HTTPS
+}));
+
 const db = require('./utils/db')
 
 db.execute('SHOW DATABASES')
@@ -22,10 +30,12 @@ db.execute('SHOW DATABASES')
 const adminRoutes = require('./routes/admin')
 const shopRoutes = require('./routes/shop')
 const cartRoutes = require('./routes/cart')
+const accRoutes = require('./routes/account')
 
 app.use('/admin', adminRoutes)
 app.use(shopRoutes)
 app.use('/cart', cartRoutes)
+app.use('/account', accRoutes)
 
 app.use((req, res, next) => {
     res.status(404).render('notfound')

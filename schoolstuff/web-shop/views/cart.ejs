@@ -104,20 +104,21 @@
                 Price: <%= item.price %>&euro;
             </h3>
             <a href="/cart">Buy</a>
-            <a href="#" onclick="deleteItem('<%= item.id %>', 1)">Remove from cart</a>
+            <a href="#" onclick="deleteItem('<%= item.id %>')">Remove from cart</a>
         </div>
         <% }); %>
     </div>
     <div id="product" style="position: fixed; right: 20px; bottom: 20px;">
         <h3>Total Price: <%= totalPrice.toFixed(2) %>&euro;</h3>
-        <a href="#" onclick="purchaseItem(1)">Purchase</a>
+        <a href="#" onclick="purchaseItem()">Purchase</a>
     </div>
     <% } %>
 
     <script>
-        function deleteItem(id, userid) {
-          fetch(`/cart/removecart/${id}/${userid}`, {
+        function deleteItem(id) {
+          fetch(`/cart/removecart/${id}`, {
             method: 'DELETE',
+            credentials: 'include'
           })
           .then(response => {
             if (response.ok) {
@@ -129,16 +130,13 @@
           })
           .catch(error => console.error('Error:', error));
         }
-        function purchaseItem(userid) {
-            const data = {
-                userId: userid
-            };
+        function purchaseItem() {
           fetch(`/cart/purchase`, {
             method: 'POST',
+            credentials: 'include',
             headers: {
             'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(data)
+            }
           })
           .then(response => {
             if (response.ok) {

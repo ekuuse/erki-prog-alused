@@ -88,19 +88,19 @@
             <h3>
                 Price: <%= item.price %>&euro;
             </h3>
-            <a href="#" onclick="createItem('<%= item.id %>', '<%= item.price %>', 1)">Add to cart</a>
+            <a href="#" onclick="createItem('<%= item.id %>', '<%= item.price %>')">Add to cart</a>
         </div>
         <% }); %>
     </div>
     <script>
-        function createItem(id, price, userid) {
+        function createItem(id, price) {
             const data = {
                 productId: id,
-                price: parseFloat(price),
-                userId: userid
+                price: parseFloat(price)
             };
           fetch(`/cart/addcart`, {
             method: 'PUT',
+            credentials: 'include',
             headers: {
             'Content-Type': 'application/json'
             },
