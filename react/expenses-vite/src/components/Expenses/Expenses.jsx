@@ -1,14 +1,18 @@
-import ExpenseItem from './ExpenseItem.jsx';
-import Card from '../UI/Card.jsx'
-import './Expenses.css'
+import ExpenseItem from "./ExpenseItem.jsx";
+import Card from "../UI/Card.jsx";
+import "./Expenses.css";
 
 const Expenses = (props) => {
-    return (
-        <Card className="expenses">
-            <ExpenseItem data={props.data[0]}/>
-            <ExpenseItem data={props.data[1]}/>
-        </Card>
-    )
-}
+    console.log('In expenses')
+    console.log(props.expenses)
+ //return
+  return (
+    <Card className="expenses">
+      {props.expenses.map((expense) => {
+        return <ExpenseItem expenseData={expense} key={expense.id} />;
+      })}
+    </Card>
+  );
+};
 
-export default Expenses
+export default Expenses;
