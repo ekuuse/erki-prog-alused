@@ -73,7 +73,7 @@ const ExpenseForm = (props) => {
           <label>Date</label>
           <input
             type="date"
-            min="2024-11-12"
+            min="2023-01-01"
             max="2026-01-31"
             id = "date"
             ref = {dateInputRef}

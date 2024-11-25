@@ -12,7 +12,7 @@ const BackDrop = () => {
 
 const ModalOverlay = (props) => {
   return (
-    <Card classname="modal">
+    <Card className="modal">
       <header className="header">
         <h2>{props.title}</h2>
       </header>
