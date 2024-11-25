@@ -5,7 +5,7 @@ import ExpensesFilter from "./components/Expenses/ExpensesFilter";
 import { useState } from "react";
 
 function App() {
-  const d_expenses = [
+  const [d_expenses, setExpenses] = useState([
     {
       id: 'id1',
       date: new Date(2023, 11, 11),
@@ -20,24 +20,28 @@ function App() {
     },
     {
       id: 'id3',
-      date: new Date(2025, 11, 11),
+      date: new Date(2023, 11, 11),
       title: "New car",
       price: 12299.99,
     },
     {
       id: 'id4',
-      date: new Date(2025, 11, 11),
+      date: new Date(2024, 11, 11),
       title: "New cccccar",
       price: 1229993.99,
     },
-  ];
-
-  const [filterYear, setFilterYear] = useState('2023')
+  ]);
 
   const addExpenseHandler = (expense) => {
-    console.log('In App.js')
-    console.log(expense)
-  }
+    const uniqueId = 'id' + (d_expenses.length + 1);
+    const newExpense = {
+      ...expense,
+      id: uniqueId,
+    };
+    setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
+  };
+
+  const [filterYear, setFilterYear] = useState('2023')
   
   const expenses = d_expenses.filter(
     (expense) => expense.date.getFullYear() === parseInt(filterYear)
@@ -46,8 +50,8 @@ function App() {
   //return
   return (
     <div className="App">
-      <ExpensesFilter onChangeFilter={setFilterYear}/>
       <NewExpense onAddExpense={addExpenseHandler}/>
+      <ExpensesFilter onChangeFilter={setFilterYear}/>
       <Expenses expenses={expenses} />
     </div>
   );

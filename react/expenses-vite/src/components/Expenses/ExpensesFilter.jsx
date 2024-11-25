@@ -3,9 +3,9 @@ import React from "react";
 import "./ExpensesFilter.css";
 
 const ExpensesFilter = (props) => {
-    const submitFilterChange = (event) => {
-        props.onChangeFilter(event.target.value)
-    }
+  const submitFilterChange = (event) => {
+    props.onChangeFilter(event.target.value);
+  };
 
   return (
     <div className="expenses-filter">
