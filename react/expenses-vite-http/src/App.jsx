@@ -67,13 +67,31 @@ function App() {
     setShowError(false)
   }
 
+  const addExpense = async (expense) => {
+    try {
+      const response = await fetch('http://localhost:3005/add-expense', {
+        method: 'POST',
+        body: JSON.stringify(expense),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      })
+      const responseData = await response.json()
+      if(!response.ok){
+        throw new Error('Failed saving data')
+      }
+      setExpenses([expense, ...expenses])
+    } catch(error) {
+      setError({
+        title: 'An error occured!',
+        message: 'Failed saving expenses data, please try again.'
+      })
+    }
+  }
+
   const addExpenseHandler = (expense) => {
-    const uniqueId = "id" + (expenses.length + 1);
-    const newExpense = {
-      ...expense,
-      id: uniqueId,
-    };
-    setExpenses((prevExpenses) => [...prevExpenses, newExpense]);
+    console.log(expense)
+    addExpense(expense)
   };
 
   const [filterYear, setFilterYear] = useState("2023");
